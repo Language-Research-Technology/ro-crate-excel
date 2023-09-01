@@ -104,3 +104,8 @@ dist
 .tern-port
 
 test_data/additional/ro-crate-metadata.json
+.idea
+METADATA_IDRC.xlsx
+test-this.xlsx
+test_context.xls
+test.xlsx
