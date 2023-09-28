@@ -291,7 +291,7 @@ describe("Create a workbook from a crate", function () {
 
 });
 
-describe('Load Workbook', () => {
+describe('Load Buffer', () => {
 
     it('should be able to load a workbook from buffer', async () => {
         const excelFilePath = "test_data/collections-workbook-sans-context.xlsx";
@@ -306,6 +306,18 @@ describe('Load Workbook', () => {
     });
 });
 
+
+describe('Sheets', () => {
+    it('should be able to ignore worksheets that start with . (dot)', async () => {
+        const excelFilePath = "test_data/collections-workbook-sans-context.xlsx";
+        const crate = new ROCrate({}, {array: true, link: true});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const undefinedItem = wb.crate.getItem('/object1/1_sensitive.mpg');
+        assert.strictEqual(undefinedItem, undefined, 'because the sheet name starts with dot, this should be undefined');
+    });
+});
 
 
 
