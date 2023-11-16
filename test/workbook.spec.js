@@ -345,4 +345,13 @@ describe('Can handle multi _isRef in a sheet', () => {
     });
 });
 
-
+describe('Can send correct warnings', () => {
+    it('should list warnings correctly', async () =>{
+        const excelFilePath = "test_data/additional_underscore_fields/additional-ro-crate-metadata.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        assert.strictEqual(wb.log.warning.includes('something_somethingElse'), true);
+    });
+});
