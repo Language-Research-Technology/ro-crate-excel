@@ -352,6 +352,6 @@ describe('Can send correct warnings', () => {
         const buffer = fs.readFileSync(excelFilePath);
         const wb = new Workbook({crate});
         await wb.loadExcelFromBuffer(buffer, true);
-        assert.strictEqual(wb.log.warning.includes('something_somethingElse'), true);
+        assert.strictEqual(wb.log.warning.includes('Property something_somethingElse not defined in @context'), true);
     });
 });
