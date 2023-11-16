@@ -320,4 +320,29 @@ describe('Sheets', () => {
 });
 
 
+describe('Can handle multi _isRef in a sheet', () => {
+   it('should create 2 references to another object', async () =>{
+       const excelFilePath = "test_data/additional-multi/additional-ro-crate-metadata.xlsx";
+       const crate = new ROCrate({}, {array: true, link: false});
+       const buffer = fs.readFileSync(excelFilePath);
+       const wb = new Workbook({crate});
+       await wb.loadExcelFromBuffer(buffer, true);
+       const object = wb.crate.getItem('#OBJECT_Juan');
+       const speakers = object.speaker;
+       assert.strictEqual(Array.isArray(speakers), true);
+       assert.strictEqual(speakers.length,2);
+   });
+    it('should create 1 reference even if it is referenced twice with the same id', async () =>{
+        const excelFilePath = "test_data/additional-multi/additional-ro-crate-metadata.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const object = wb.crate.getItem('#OBJECT_Emilia');
+        const speakers = object.speaker;
+        assert.strictEqual(Array.isArray(speakers), true);
+        assert.strictEqual(speakers.length,1);
+    });
+});
+
 
