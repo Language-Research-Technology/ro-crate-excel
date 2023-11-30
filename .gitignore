@@ -110,3 +110,5 @@ test-this.xlsx
 test_context.xlsx
 test.xlsx
 .DS_Store
+# ignore microsoft temporary files
+~*

@@ -321,18 +321,18 @@ describe('Sheets', () => {
 
 
 describe('Can handle multi _isRef in a sheet', () => {
-   it('should create 2 references to another object', async () =>{
-       const excelFilePath = "test_data/additional-multi/additional-ro-crate-metadata.xlsx";
-       const crate = new ROCrate({}, {array: true, link: false});
-       const buffer = fs.readFileSync(excelFilePath);
-       const wb = new Workbook({crate});
-       await wb.loadExcelFromBuffer(buffer, true);
-       const object = wb.crate.getItem('#OBJECT_Juan');
-       const speakers = object.speaker;
-       assert.strictEqual(Array.isArray(speakers), true);
-       assert.strictEqual(speakers.length,2);
-   });
-    it('should create 1 reference even if it is referenced twice with the same id', async () =>{
+    it('should create 2 references to another object', async () => {
+        const excelFilePath = "test_data/additional-multi/additional-ro-crate-metadata.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const object = wb.crate.getItem('#OBJECT_Juan');
+        const speakers = object.speaker;
+        assert.strictEqual(Array.isArray(speakers), true);
+        assert.strictEqual(speakers.length, 2);
+    });
+    it('should create 1 reference even if it is referenced twice with the same id', async () => {
         const excelFilePath = "test_data/additional-multi/additional-ro-crate-metadata.xlsx";
         const crate = new ROCrate({}, {array: true, link: false});
         const buffer = fs.readFileSync(excelFilePath);
@@ -341,12 +341,12 @@ describe('Can handle multi _isRef in a sheet', () => {
         const object = wb.crate.getItem('#OBJECT_Emilia');
         const speakers = object.speaker;
         assert.strictEqual(Array.isArray(speakers), true);
-        assert.strictEqual(speakers.length,1);
+        assert.strictEqual(speakers.length, 1);
     });
 });
 
 describe('Can send correct warnings', () => {
-    it('should list warnings correctly', async () =>{
+    it('should list warnings correctly', async () => {
         const excelFilePath = "test_data/additional_underscore_fields/additional-ro-crate-metadata.xlsx";
         const crate = new ROCrate({}, {array: true, link: false});
         const buffer = fs.readFileSync(excelFilePath);
@@ -355,3 +355,14 @@ describe('Can send correct warnings', () => {
         assert.strictEqual(wb.log.warning.includes('Property something_somethingElse not defined in @context'), true);
     });
 });
+
+describe('Can handle excel columns as objects (such as hyperlinks)', () => {
+    it('should handle the prop', async () => {
+        const excelFilePath = "test_data/additional-with-non-text-cols/additional-ro-crate-metadata.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        assert.strictEqual(wb.log.errors.length, 0);
+    })
+})
