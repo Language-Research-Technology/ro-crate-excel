@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 const Bag = require("./lib/bag.js");
-const update = require("./lib/update.js")
+const update = require("./lib/update.js");
 // 
 const ROCrate = require("ro-crate").ROCrate;
 const Preview = require("ro-crate-html").Preview;
@@ -34,7 +34,8 @@ const program = new Command();
 const defaults = require("./lib/defaults.js");
 const htmlFileName = defaults.html_file_name;
 const metadata_file_name = defaults.metadata_json_file_name;
-const fs = require("fs-extra")
+const fs = require("fs-extra");
+const { version } = require("./package.json");
 var dirs = undefined;
 
 main();
@@ -42,7 +43,7 @@ main();
 
 async function main() {
   program
-    .version("0.1.0")
+    .version(version)
     .description(
       "Generates an an excel spreadsheet and RO-Crate metadata from a set of files and updates the RO-Crate with data " + 
       "filled in the spreadsheet. If a spreadsheet is newer than the RO-Crate metadata file then then xlro will use that or vice versa. " +
