@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/UTS-eResearch/ro-crate-excel#readme",
   "dependencies": {
+    "commander": "^12.1.0",
     "exceljs": "^4.3.0",
     "fast-csv": "^4.3.6",
     "fs-extra": "^11.1.1",

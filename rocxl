@@ -29,7 +29,8 @@ const htmlDefaults = require("ro-crate-html").Defaults;
 
 const path = require("path");
 const shell = require("shelljs");
-const program = require("commander");
+const { Command } = require('commander');
+const program = new Command();
 const defaults = require("./lib/defaults.js");
 const htmlFileName = defaults.html_file_name;
 const metadata_file_name = defaults.metadata_json_file_name;
@@ -64,7 +65,8 @@ async function main() {
     .option(
       "-u, --url [distro]",
       "Distribution URL"
-    );
+    )
+    .showHelpAfterError();
   var depth = 0;
   program.parse(process.argv);
   if (program.recurse) {
