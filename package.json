@@ -42,7 +42,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "chai": "*",
+    "chai": "4.5.0",
     "mocha": "^10.2.0"
   },
   "files": [
