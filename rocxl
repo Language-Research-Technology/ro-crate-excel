@@ -2,7 +2,7 @@
 
 /*
 This is part of ro-crate-excel tool for implementing the RO-Crate data packaging
-spec.  Copyright (C) 2018  University of Technology Sydney and 2023 University of QUeensland
+spec.  Copyright (C) 2018  University of Technology Sydney and 2023 University of Queensland
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ async function main() {
   program
     .version(version)
     .description(
-      "Generates an an excel spreadsheet and RO-Crate metadata from a set of files and updates the RO-Crate with data " + 
+      "Generates an an Excel spreadsheet and RO-Crate metadata from a set of files and updates the RO-Crate with data " + 
       "filled in the spreadsheet. If a spreadsheet is newer than the RO-Crate metadata file then then xlro will use that or vice versa. " +
       "The file system is ALWAYS traversed and file information merged into existing metadata."
     )
@@ -54,9 +54,9 @@ async function main() {
       dirs = directories;
     })
     .option("-b,  --bag [bag-dir]", "Create Bagit Bag(s) under [bag-dir])")
-    .option("-a,  --add", "Add metadata from additional-ro-crate-metadata.xlsx to an existing ro-crate-metadata.json crate). Does not re-write the excel input file.")
+    .option("-a,  --add", "Add metadata from additional-ro-crate-metadata.xlsx to an existing ro-crate-metadata.json crate). Does not re-write the Excel input file.")
     .option("-z   --zip", "Zip the bagged ro-crate (only works with --bag")
-    .option("-j   --JSON", "Use the ro-crate-metadata.json file rather than ro-crate-metadata.xslx")
+    .option("-j   --JSON", "Use the ro-crate-metadata.json file rather than ro-crate-metadata.xlsx")
     .option("-p   --partOf [partOf]", "This is part of another RO-Crate, supply the ro-crate-metadata.jsonld path.")
     .option("-d,  --depth [depth]", "Maximum depth to recurse into directories")
     .option("-r,  --recurse", "Recurse into directories looking for files")
