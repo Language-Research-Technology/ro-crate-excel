@@ -280,9 +280,9 @@ Columns with names that start with isTerm\_ are treated as references to vocabul
 
 So assuming the @context sheet contains:
 
-| name | @id                                                  |
-| ---- | ---------------------------------------------------- |
-| ldac | http://purl.archive.org/language-data-commons/terms# |
+| name | @id                          |
+| ---- | ---------------------------- |
+| ldac | https://w3id.org/ldac/terms# |
 
 | @id          | @type | isTerm_annotationType |
 | ------------ | ----- | --------------------- |
