@@ -5,7 +5,7 @@
       "@vocab": "http://schema.org/"
     },
     {
-      "ldac": "http://purl.archive.org/language-data-commons/terms#"
+      "ldac": "http://w3id.org/ldac/terms#"
     }
   ],
   "@graph": [

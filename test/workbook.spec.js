@@ -170,8 +170,9 @@ describe("Create a workbook from a crate", function () {
         const f = workbook2.crate.getEntity("/object2/1.mp4");
         assert(f);
         console.log(f['@type']);
-        assert(f['@type'].includes('PrimaryMaterial'), "Picked up an extra type from isTypePrimaryMaterial column")
-        assert.equal(f.linguisticGenre[0]['@id'], "http://purl.archive.org/language-data-commons/terms#Dialogue", "Resolved context term")
+        assert(f['@type'].includes('PrimaryMaterial'), "Picked up an extra type from isTypePrimaryMaterial column");
+        const baseContext = "http://w3id.org/ldac/terms#";
+        assert.equal(baseContext + f.linguisticGenre[0]['@id'], baseContext + "ldac:Dialogue", "Resolved context term")
 
     });
 
@@ -364,5 +365,19 @@ describe('Can handle excel columns as objects (such as hyperlinks)', () => {
         const wb = new Workbook({crate});
         await wb.loadExcelFromBuffer(buffer, true);
         assert.strictEqual(wb.log.errors.length, 0);
+    });
+});
+
+
+describe('Can handle root Id other than ./', () => {
+    it('should handle the prop', async () => {
+        const excelFilePath = "test_data/additional-rootId/additional-ro-crate-metadata.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        assert.strictEqual(wb.log.errors.length, 0);
+        const root = wb.crate.rootDataset;
+        assert.strictEqual(root['@id'], 'arcp://name.my_org/My_Dataset!');
     })
 })
