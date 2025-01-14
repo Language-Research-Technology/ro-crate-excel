@@ -1,0 +1,241 @@
+{
+  "@context": [
+    "https://w3id.org/ro/crate/1.1/context",
+    {
+      "@vocab": "http://schema.org/"
+    }
+  ],
+  "@graph": [
+    {
+      "@id": "./",
+      "@type": "Dataset",
+      "name": "Untitled Crate",
+      "hasMember": [
+        {
+          "@id": "#OBJECT_Rosa"
+        },
+        {
+          "@id": "#OBJECT_Rosa"
+        },
+        {
+          "@id": "#OBJECT_Juan"
+        },
+        {
+          "@id": "#OBJECT_Juan"
+        },
+        {
+          "@id": "#OBJECT_Emilia"
+        },
+        {
+          "@id": "#OBJECT_Emilia"
+        },
+        {
+          "@id": "#OBJECT_Maria"
+        },
+        {
+          "@id": "#OBJECT_Maria"
+        }
+      ]
+    },
+    {
+      "@id": "ro-crate-metadata.json",
+      "@type": "CreativeWork",
+      "identifier": "ro-crate-metadata.json",
+      "about": {
+        "@id": "./"
+      }
+    },
+    {
+      "@id": "#Rosa",
+      "name": "Rosa",
+      "language": "Spanish",
+      "gender": "Female",
+      "birthDate": "1979",
+      "age": "40",
+      "birthPlace": "Mexico (Puebla)",
+      "@type": "Person"
+    },
+    {
+      "@id": "#Juan",
+      "name": "Juan",
+      "language": "Spanish",
+      "gender": "Male",
+      "birthDate": "1971",
+      "age": "48",
+      "birthPlace": "Mexico Oaxaca)",
+      "@type": "Person"
+    },
+    {
+      "@id": "#Emilia",
+      "name": "Emilia",
+      "language": "Spanish",
+      "gender": "Female",
+      "birthDate": "1966",
+      "age": "53",
+      "birthPlace": "Mexico (Mexico City)",
+      "@type": "Person"
+    },
+    {
+      "@id": "#Maria",
+      "name": "Maria",
+      "language": "Spanish",
+      "gender": "Female",
+      "birthDate": "1982",
+      "age": "37",
+      "birthPlace": "Mexico (Mexico City)",
+      "@type": "Person"
+    },
+    {
+      "@id": "Audio_Anonymised/AUDIO_Rosa_anon.wav",
+      "someOtherProperty": "anon",
+      "@type": [
+        "File",
+        "PrimaryMaterial"
+      ],
+      "partOf": {
+        "@id": "#OBJECT_Rosa"
+      }
+    },
+    {
+      "@id": "#OBJECT_Rosa",
+      "name": "OBJECT_Rosa",
+      "speakerNumber": "11",
+      "datePublished": "43540",
+      "@type": "RepositoryObject",
+      "speaker": {
+        "@id": "#Rosa"
+      },
+      "memberOf": {
+        "@id": "./"
+      }
+    },
+    {
+      "@id": "Audio_Anonymised/AUDIO_Juan_anon.wav",
+      "someOtherProperty": "anon",
+      "@type": [
+        "File",
+        "PrimaryMaterial"
+      ],
+      "partOf": {
+        "@id": "#OBJECT_Juan"
+      }
+    },
+    {
+      "@id": "#OBJECT_Juan",
+      "name": "OBJECT_Juan",
+      "speakerNumber": "44",
+      "datePublished": "43580",
+      "@type": "RepositoryObject",
+      "speaker": {
+        "@id": "#Juan"
+      },
+      "memberOf": {
+        "@id": "./"
+      }
+    },
+    {
+      "@id": "Audio_Anonymised/AUDIO_Emilia_anon.wav",
+      "someOtherProperty": "anon",
+      "@type": [
+        "File",
+        "PrimaryMaterial"
+      ],
+      "partOf": {
+        "@id": "#OBJECT_Emilia"
+      }
+    },
+    {
+      "@id": "#OBJECT_Emilia",
+      "name": "OBJECT_Emilia",
+      "speakerNumber": "24",
+      "datePublished": "43540",
+      "@type": "RepositoryObject",
+      "speaker": {
+        "@id": "#Emilia"
+      },
+      "memberOf": {
+        "@id": "./"
+      }
+    },
+    {
+      "@id": "Audio_Anonymised/AUDIO_Maria_anon.wav",
+      "someOtherProperty": "anon",
+      "@type": [
+        "File",
+        "PrimaryMaterial"
+      ],
+      "partOf": {
+        "@id": "#OBJECT_Maria"
+      }
+    },
+    {
+      "@id": "#OBJECT_Maria",
+      "name": "OBJECT_Maria",
+      "speakerNumber": "43",
+      "datePublished": "43575",
+      "@type": "RepositoryObject",
+      "speaker": {
+        "@id": "#Maria"
+      },
+      "memberOf": {
+        "@id": "./"
+      }
+    },
+    {
+      "@id": "Transcripts_Anonymised/EAF_Rosa_anon.eaf",
+      "someProperty": "anon",
+      "@type": [
+        "File",
+        "Annotation"
+      ],
+      "partOf": {
+        "@id": "#EAF_Rosa"
+      },
+      "annotationOf": {
+        "@id": "AUDIO_Rosa.wav"
+      }
+    },
+    {
+      "@id": "Transcripts_Anonymised/EAF_Juan_anon.eaf",
+      "someProperty": "anon",
+      "@type": [
+        "File",
+        "Annotation"
+      ],
+      "partOf": {
+        "@id": "#EAF_Juan"
+      },
+      "annotationOf": {
+        "@id": "AUDIO_Juan.wav"
+      }
+    },
+    {
+      "@id": "Transcripts_Anonymised/EAF_Emilia_anon.eaf",
+      "someProperty": "anon",
+      "@type": [
+        "File",
+        "Annotation"
+      ],
+      "partOf": {
+        "@id": "#EAF_Emilia"
+      },
+      "annotationOf": {
+        "@id": "AUDIO_Emilia.wav"
+      }
+    },
+    {
+      "@id": "Transcripts_Anonymised/EAF_Maria_anon.eaf",
+      "someProperty": "anon",
+      "@type": [
+        "File",
+        "Annotation"
+      ],
+      "partOf": {
+        "@id": "#EAF_Maria"
+      },
+      "annotationOf": {
+        "@id": "AUDIO_Maria.wav"
+      }
+    }
+  ]
+}
