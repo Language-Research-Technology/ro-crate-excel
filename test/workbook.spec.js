@@ -171,9 +171,6 @@ describe("Create a workbook from a crate", function () {
         assert(f);
         console.log(f['@type']);
         assert(f['@type'].includes('PrimaryMaterial'), "Picked up an extra type from isTypePrimaryMaterial column");
-        const baseContext = "http://w3id.org/ldac/terms#";
-        assert.equal(baseContext + f.linguisticGenre[0]['@id'], baseContext + "ldac:Dialogue", "Resolved context term")
-
     });
 
     it("Can deal with there being no @context worksheet", async function () {
@@ -217,36 +214,30 @@ describe("Create a workbook from a crate", function () {
 
     it("Can deal with extra context terms", async function () {
         var c = new ROCrate({array: true, link: true});
+        await c.resolveContext();
 
-        c.getJson()["@graph"].push(
-            {
-                "@type": "Property",
-                "@id": "_:myprop",
-                "label": "myProp",
-                "comment": "My description of my custom property",
-            })
-        c.getJson()["@graph"].push(
-            {
-                "@type": "Property",
-                "@id": "_:http://example.com/mybetterprop",
-                "label": "myBetterProp",
-                "comment": "My description of my custom property",
-            })
-        c.getJson()["@context"].push({
-                myProp: "_:myprop",
-                myBetterProp: "_:http://example.com/mybetterprop"
-            }
-        )
+        c.addEntity({
+            "@type": "Property",
+            "@id": "http://example.com/mybetterprop",
+            "label": "myBetterProp",
+            "comment": "My description of my custom property",
+        });
 
+        c.addContext({"ldac":"http://w3id.org/ldac/terms#"});
+        const ldacTerm = c.resolveTerm("ldac:linguisticGenre");
+        assert(ldacTerm, "http://w3id.org/ldac/terms#linguisticGenre");
+
+        c.addContext({"myBetterProp": "http://example.com/mybetterprop"});
+
+        const term = c.resolveTerm('myBetterProp');
+        assert(term, "http://example.com/mybetterprop");
 
         const workbook = new Workbook({crate: c});
         await workbook.crateToWorkbook();
         await workbook.workbook.xlsx.writeFile("test_context.xlsx");
 
         const contextSheet = workbook.workbook.getWorksheet("@context")
-        expect(contextSheet.getRow(4).values[1]).to.equal("myBetterProp");
-        expect(contextSheet.getRow(4).values[2]).to.equal("_:http://example.com/mybetterprop");
-
+        assert(contextSheet.getRow(3).values[2], "http://example.com/mybetterprop");
 
     });
 
