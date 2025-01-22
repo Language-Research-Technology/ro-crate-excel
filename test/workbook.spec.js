@@ -72,9 +72,9 @@ describe("Create a workbook from a crate", function () {
         await workbook.crateToWorkbook();
         const rootSheetName = "RootDataset";
         datasetItem = workbook.sheetToItem(rootSheetName);
-        assert.equal(Object.keys(datasetItem).length, 4)
-        assert.equal(datasetItem.name, "My dataset");
-        assert.equal(datasetItem.description, "Some old dataset");
+        assert.equal(Object.keys(datasetItem.item).length, 4)
+        assert.equal(datasetItem.item.name, "My dataset");
+        assert.equal(datasetItem.item.description, "Some old dataset");
         console.log(workbook.sheetDefaults)
 
     });
@@ -112,7 +112,7 @@ describe("Create a workbook from a crate", function () {
 
         assert.equal(workbook.workbook["_worksheets"].length, 17, "Right number of tabs")
         const root = workbook.sheetToItem("RootDataset");
-        assert.equal(root.publisher, `"http://uts.edu.au"`)
+        assert.equal(root.item.publisher, `"http://uts.edu.au"`)
 
         // Name indexing works
         workbook.indexCrateByName();
@@ -370,5 +370,29 @@ describe('Can handle root Id other than ./', () => {
         assert.strictEqual(wb.log.errors.length, 0);
         const root = wb.crate.rootDataset;
         assert.strictEqual(root['@id'], 'arcp://name.my_org/My_Dataset!');
-    })
-})
+    });
+});
+
+describe('Can handle _isRef in a RootDataset (vertical)', () => {
+    it('should create 2 references to another object', async () => {
+        const excelFilePath = "test_data/additional-rootdataset/ro-crate-metadata-RootDataset_isRef.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const root = wb.crate.rootDataset;
+        assert.strictEqual(root['@id'], 'TEST_ID');
+        const author = [{"@id":"#LDaCA"}, {"@id":"#AARNET"}];
+        const authorId = root['author'];
+        assert.deepStrictEqual(authorId, author);
+    });
+    it('should handle isTerm_', async () => {
+        const excelFilePath = "test_data/additional-rootdataset/ro-crate-metadata-RootDataset_isRef.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const term = wb.crate.resolveTerm('ldac:subjectLanguage');
+        assert.strictEqual(term, 'https://w3id.org/ldac/terms#subjectLanguage');
+    });
+});

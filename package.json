@@ -1,6 +1,6 @@
 {
   "name": "ro-crate-excel",
-  "version": "1.0.22",
+  "version": "1.1.0",
   "description": "Utilities for converting RO-Crates to Spreadsheet format for data entry and vice versa",
   "main": "index.js",
   "bin": {
