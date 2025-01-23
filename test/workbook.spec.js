@@ -224,6 +224,8 @@ describe("Create a workbook from a crate", function () {
         });
 
         c.addContext({"ldac":"http://w3id.org/ldac/terms#"});
+        //Adding twice?
+        c.addContext({"ldac":"http://w3id.org/ldac/terms#"});
         const ldacTerm = c.resolveTerm("ldac:linguisticGenre");
         assert(ldacTerm, "http://w3id.org/ldac/terms#linguisticGenre");
 
@@ -391,8 +393,23 @@ describe('Can handle _isRef in a RootDataset (vertical)', () => {
         const crate = new ROCrate({}, {array: true, link: false});
         const buffer = fs.readFileSync(excelFilePath);
         const wb = new Workbook({crate});
-        await wb.loadExcelFromBuffer(buffer, true);
         const term = wb.crate.resolveTerm('ldac:subjectLanguage');
-        assert.strictEqual(term, 'https://w3id.org/ldac/terms#subjectLanguage');
+        assert(!term);
+        await wb.loadExcelFromBuffer(buffer, true);
+        const term2 = wb.crate.resolveTerm('ldac:subjectLanguage');
+        assert.strictEqual(term2, 'https://w3id.org/ldac/terms#subjectLanguage');
+    });
+});
+
+describe('Can handle multiple context', () => {
+    it('should handle the @context correctly', async () => {
+        const excelFilePath = "test_data/additional-rootdataset/ro-crate-metadata-RootDataset_isRef.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const contextLength = wb.crate.context.length;
+        await wb.loadExcelFromBuffer(buffer, true);
+        console.assert(contextLength === wb.crate.context.length);
     });
 });
