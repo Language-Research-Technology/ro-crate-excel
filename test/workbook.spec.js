@@ -413,3 +413,28 @@ describe('Can handle multiple context', () => {
         console.assert(contextLength === wb.crate.context.length);
     });
 });
+
+describe('Can merge terms from different columns', () => {
+    it('can handle multiple terms', async () => {
+        const excelFilePath = "test_data/additional-multi/additional-ro-crate-metadata.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const object = wb.crate.getItem('#OBJECT_Emilia');
+        const languages = object.language;
+        assert.strictEqual(Array.isArray(languages), true);
+        assert.strictEqual(languages.length, 3);
+    });
+    it('can handle multiple terms in RootDataset', async () => {
+        const excelFilePath = "test_data/additional-rootdataset/ro-crate-metadata-RootDataset_isRef.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const rootDataset = wb.crate.rootDataset;
+        const languages = rootDataset.inLanguage;
+        assert.strictEqual(Array.isArray(languages), true);
+        assert.strictEqual(languages.length, 3);
+    });
+});
