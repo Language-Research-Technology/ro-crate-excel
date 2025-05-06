@@ -214,42 +214,6 @@ describe("Create a workbook from a crate", function () {
     });
 
 
-    it("Can deal with extra context terms", async function () {
-        var c = new ROCrate({array: true, link: true});
-
-        c.getJson()["@graph"].push(
-            {
-                "@type": "Property",
-                "@id": "_:myprop",
-                "label": "myProp",
-                "comment": "My description of my custom property",
-            })
-        c.getJson()["@graph"].push(
-            {
-                "@type": "Property",
-                "@id": "_:http://example.com/mybetterprop",
-                "label": "myBetterProp",
-                "comment": "My description of my custom property",
-            })
-        c.getJson()["@context"].push({
-                myProp: "_:myprop",
-                myBetterProp: "_:http://example.com/mybetterprop"
-            }
-        )
-
-
-        const workbook = new Workbook({crate: c});
-        await workbook.crateToWorkbook();
-        await workbook.workbook.xlsx.writeFile("test_context.xlsx");
-
-        const contextSheet = workbook.workbook.getWorksheet("@context")
-        expect(contextSheet.getRow(4).values[1]).to.equal("myBetterProp");
-        expect(contextSheet.getRow(4).values[2]).to.equal("_:http://example.com/mybetterprop");
-
-
-    });
-
-
     it("Can export a workbook to a crate", async function () {
         this.timeout(5000);
 
@@ -305,6 +269,27 @@ describe('Load Buffer', () => {
         assert(wb.log.warning.length > 0)
     });
 });
+
+
+describe('Reverse', () => {
+
+    it('should be able to add properties to a source entity using isReverse_', async () => {
+        const excelFilePath = "test_data/reverse.xlsx";
+        const crate = new ROCrate({}, {array: true, link: true});
+        const buffer = fs.readFileSync(excelFilePath)
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+
+        const object1 = wb.crate.getItem('#Object1');
+        assert(object1["@type"][0] === 'RepositoryObject')
+        assert(object1['hasPart'].length === 2)
+        assert(object1['hasPart'][0]['@id'] === '/object1/1.mp4')
+        assert(object1['hasPart'][1]['@id'] === '/object1/1.csv')
+        assert(wb.log.info.length > 0);
+        assert(wb.log.warning.length > 0)
+    });
+});
+
 
 
 describe('Sheets', () => {

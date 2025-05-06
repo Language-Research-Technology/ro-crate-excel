@@ -20,10 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 const Bag = require("./lib/bag.js");
 const update = require("./lib/update.js");
-// 
+//
 const ROCrate = require("ro-crate").ROCrate;
 const Preview = require("ro-crate-html").Preview;
 const HtmlFile = require("ro-crate-html").HtmlFile;
+console.log("HTML FILE", HtmlFile);
 const htmlDefaults = require("ro-crate-html").Defaults;
 
 
@@ -70,14 +71,17 @@ async function main() {
     .showHelpAfterError();
   var depth = 0;
   program.parse(process.argv);
-  if (program.recurse) {
+  opts = program.opts();
+
+
+  if (opts.recurse) {
     depth = defaults.max_depth;
   }
-  if (program.depth) {
-    depth = program.depth;
+  if (opts.depth) {
+    depth = opts.depth;
   }
-  if (program.maxfiles) {
-    defaults.maxFilesInDir = program.maxfiles;
+  if (opts.maxfiles) {
+    defaults.maxFilesInDir = opts.maxfiles;
   }
  
   if (!program.rawArgs.length || !dirs) program.help();
@@ -94,7 +98,7 @@ async function main() {
 
 
 async function processDirectory(dir, depth) {
-  await update(dir, depth, program.JSON, program.add);
+  await update(dir, depth, opts.JSON, opts.add);
 }
 
 
@@ -111,7 +115,7 @@ async function generateHTML(metadataPath) {
     var root =  crate.getRootDataset();
 
 
-    if (program.url){
+    if (opts.url){
       // Add dowload info
       if (!root["distribution"]) {
         root["distribution"] = []
@@ -119,14 +123,14 @@ async function generateHTML(metadataPath) {
       root["distribution"] = crate.utils.asArray(root["distribution"])
       root["distribution"].push(
         {
-          "@id": program.url
+          "@id": opts.url
         }
       );
       var graph = crate.getGraph();
       graph.push(
         {
-          "@id": program.url,
-          "contentUrl": program.url,
+          "@id": opts.url,
+          "contentUrl": opts.url,
           "@type": "DataDownload",
           "encodingFormat": "zip"
        });
@@ -134,8 +138,8 @@ async function generateHTML(metadataPath) {
        crate = new ROCrate(crate.getJson());
 
       }
-      if (program.partOf) {
-        var parentCrate = new ROCrate(JSON.parse(fs.readFileSync(program.partOf, "utf8")));
+      if (opts.partOf) {
+        var parentCrate = new ROCrate(JSON.parse(fs.readFileSync(opts.partOf, "utf8")));
         await parentCrate.index();
         parentRoot = await parentCrate.getRootDataset();
         // Inherit metadata
@@ -155,17 +159,16 @@ async function generateHTML(metadataPath) {
 
       }
 
-
-
       const preview = await new Preview(crate);
+      console.log(HtmlFile)
       const f = new HtmlFile(preview); 
   
       fs.writeFileSync(path.join(dir, htmlFileName),
-      await f.render(program.cratescript || htmlDefaults.render_script), "utf-8");
+      await f.render(opts.cratescript || htmlDefaults.render_script), "utf-8");
      
-    if (program.bag) {
+    if (opts.bag) {
       var bagger = new Bag();
-      var dest = path.join(program.bag, path.basename(dir));
+      var dest = path.join(opts.bag, path.basename(dir));
 
       shell.rm("-rf", dest);
       dir = await bagger.bag(dir, dest, crate);
@@ -179,8 +182,8 @@ async function generateHTML(metadataPath) {
       const index = await fs.copyFile(path.join(__dirname, "defaults", "index.html"), path.join(dest, "index.html"));
       //bagger.update();
      
-      if (program.zip){
-        var zipname = path.resolve(path.join(program.bag, path.basename(path.dirname(metadataPath)).replace(" ","_") + ".zip"));
+      if (opts.zip){
+        var zipname = path.resolve(path.join(opts.bag, path.basename(path.dirname(metadataPath)).replace(" ","_") + ".zip"));
         console.log('Zipping to', zipname)
         shell.cd(dir);
         shell.rm("-f", `"${zipname}"`);
