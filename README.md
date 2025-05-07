@@ -260,18 +260,38 @@ If there is a column named `isType_<Type>` such as `istype_Annotation`, then row
 
 ### Referring to other items
 
+
 Columns with names that start with isRef\_ are converted as references to an ids references to an @id, e.g.:
 
-| @id          | @type | isRef_hasAnnotation        |
-| ------------ | ----- | -------------------------- |
-| my_audio.wav | File  | ./my_audio_annotation.json |
+| @id | @type  |  isRef_hasAnnotation |
+| --- | ------ |  ----------- |
+| my_audio.wav  |File  |  my_audio_annotation.json
 
 Will be converted to:
 
 ```json
 {
-  "@id": "Mmy_audio.wav",
+  "@id": "my_audio.wav",
   "@type": "File",
+  "hasAnnotation" : {"@id": "my_audio_annotation.json"}
+}
+```
+
+Or, reversing that:
+
+| @id | @type  |  isReverse_hasAnnotation |
+| --- | ------ |  ----------- |
+| my_audio_annotation.json  | File  |  my_audio.wav
+
+Will achieve the same result as the above example.
+
+
+Columns with names that start with isTerm_ are treated as references to vocabulary items that are defined in the context:
+
+So assuming the @context sheet contains:
+
+```
+{
   "hasAnnotation": { "@id": "./my_audio_annotation.json" }
 }
 ```
@@ -299,6 +319,8 @@ The resulting item will be:
   }
 }
 ```
+
+
 
 ### Representing multiple values
 
