@@ -468,3 +468,4 @@ When converting from a worksheet to a JSON-LD item, the process is to:
 - If the value matches a known `@id` then add a reference `{"@id": "#someid"}`
 - else if the value (without quotes) matches a known name add a reference to the item with that name
 - else if the value (without quotes) does not start with `#` prepend `#` and see if it matches a known `@id` - if it does, add it as a reference
+co
