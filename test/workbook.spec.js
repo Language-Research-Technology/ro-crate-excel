@@ -186,6 +186,20 @@ describe("Create a workbook from a crate", function () {
         console.log(workbook2.crate.toJSON()["@context"])
     });
 
+    it("Correctly adds the rdfs:label and rdfs:comment from name and description from rdf:Property and rdfs:Class for custom terms", async function () {
+        this.timeout(5000);
+        const excelFilePath = "test_data/custom_terms.xlsx";
+        // New empty crate
+        var c = new ROCrate({array: true, link: true});
+
+        const workbook2 = new Workbook({crate: c});
+        await workbook2.loadExcel(excelFilePath, true); // true here means add to crate
+        const testProperty = c.getEntity('#testProperty')
+        assert(testProperty.name[0] === 'Test Property')
+        console.log(testProperty)
+        assert(testProperty.name[0] === testProperty['rdfs:label'][0])
+    });
+
     it("Can resolve double quoted references", async function () {
         var c = new ROCrate({array: true, list: true});
 

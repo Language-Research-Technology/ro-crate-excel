@@ -411,6 +411,23 @@ Which on conversion to Excel would look like:
 
 TODO: Make @context entries for additional `Property` items automatically show up in the `@context` if not already defined - and force appropriate IDs (they must be either full http(s) URIs or blank node `@id`s and start with a lowercase letter).
 
+<br>
+
+### Adding Custom Terms to the Spreadsheet
+
+If using a spreadsheet to convert to JSON-LD, custom terms can be defined on a tab in the following format:
+
+| @id             | @type          | name               | description                          | isRef_inDefinedTermSet | sameAs | rdfs:subClassOf |
+| --------------- | -------------- | ------------------ | ------------------------------------ | ---------------------- | ------ | --------------- |
+| #myProp         | rdf:Property   | My Property        | Description of the property.         |                        |
+| #MyDefinedTerm1 | DefinedTerm    | My Defined Term #1 | Description of the defined term.     | #MyPropTerms           |
+| #MyDefinedTerm2 | DefinedTerm    | My Defined Term #2 | Description of the defined term.     | #MyPropTerms           |
+| #MyPropTerms    | DefinedTermSet | My Property Terms  | Description of the defined term set. |
+
+For `rdf:Property` and `rdfs:Class`, the `rdfs:label` and `rdfs:comment` will be autopopulated by rocxl from the `name` and `description` fields respectively.
+
+<br>
+
 # Implementing Workbook to RO-Crate
 
 When converting from a worksheet to a JSON-LD item, the process is to:
