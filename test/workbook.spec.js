@@ -72,9 +72,9 @@ describe("Create a workbook from a crate", function () {
         await workbook.crateToWorkbook();
         const rootSheetName = "RootDataset";
         datasetItem = workbook.sheetToItem(rootSheetName);
-        assert.equal(Object.keys(datasetItem).length, 4)
-        assert.equal(datasetItem.name, "My dataset");
-        assert.equal(datasetItem.description, "Some old dataset");
+        assert.equal(Object.keys(datasetItem.item).length, 4)
+        assert.equal(datasetItem.item.name, "My dataset");
+        assert.equal(datasetItem.item.description, "Some old dataset");
         console.log(workbook.sheetDefaults)
 
     });
@@ -112,7 +112,7 @@ describe("Create a workbook from a crate", function () {
 
         assert.equal(workbook.workbook["_worksheets"].length, 17, "Right number of tabs")
         const root = workbook.sheetToItem("RootDataset");
-        assert.equal(root.publisher, `"http://uts.edu.au"`)
+        assert.equal(root.item.publisher, `"http://uts.edu.au"`)
 
         // Name indexing works
         workbook.indexCrateByName();
@@ -170,9 +170,7 @@ describe("Create a workbook from a crate", function () {
         const f = workbook2.crate.getEntity("/object2/1.mp4");
         assert(f);
         console.log(f['@type']);
-        assert(f['@type'].includes('PrimaryMaterial'), "Picked up an extra type from isTypePrimaryMaterial column")
-        assert.equal(f.linguisticGenre[0]['@id'], "http://purl.archive.org/language-data-commons/terms#Dialogue", "Resolved context term")
-
+        assert(f['@type'].includes('PrimaryMaterial'), "Picked up an extra type from isTypePrimaryMaterial column");
     });
 
     it("Can deal with there being no @context worksheet", async function () {
@@ -186,6 +184,20 @@ describe("Create a workbook from a crate", function () {
         assert(workbook2.crate.toJSON()["@context"].length === 2)
         //assert.equal(f.linguisticGenre[0]['@id'], "http://purl.archive.org/language-data-commons/terms#Dialogue", "Resolved context term")
         console.log(workbook2.crate.toJSON()["@context"])
+    });
+
+    it("Correctly adds the rdfs:label and rdfs:comment from name and description from rdf:Property and rdfs:Class for custom terms", async function () {
+        this.timeout(5000);
+        const excelFilePath = "test_data/custom_terms.xlsx";
+        // New empty crate
+        var c = new ROCrate({array: true, link: true});
+
+        const workbook2 = new Workbook({crate: c});
+        await workbook2.loadExcel(excelFilePath, true); // true here means add to crate
+        const testProperty = c.getEntity('#testProperty')
+        assert(testProperty.name[0] === 'Test Property')
+        console.log(testProperty)
+        assert(testProperty.name[0] === testProperty['rdfs:label'][0])
     });
 
     it("Can resolve double quoted references", async function () {
@@ -210,6 +222,39 @@ describe("Create a workbook from a crate", function () {
         assert.equal(item4.author[0]['@id'], "#test1");
         assert.equal(item4.publisher[0]['@id'], "#test2");
         assert.equal(item4.contributor[0]['@id'], "#test3");
+
+    });
+
+
+
+    it("Can deal with extra context terms", async function () {
+        var c = new ROCrate({array: true, link: true});
+        await c.resolveContext();
+
+        c.addEntity({
+            "@type": "Property",
+            "@id": "http://example.com/mybetterprop",
+            "label": "myBetterProp",
+            "comment": "My description of my custom property",
+        });
+
+        c.addContext({"ldac":"http://w3id.org/ldac/terms#"});
+        //Adding twice?
+        c.addContext({"ldac":"http://w3id.org/ldac/terms#"});
+        const ldacTerm = c.resolveTerm("ldac:linguisticGenre");
+        assert(ldacTerm, "http://w3id.org/ldac/terms#linguisticGenre");
+
+        c.addContext({"myBetterProp": "http://example.com/mybetterprop"});
+
+        const term = c.resolveTerm('myBetterProp');
+        assert(term, "http://example.com/mybetterprop");
+
+        const workbook = new Workbook({crate: c});
+        await workbook.crateToWorkbook();
+        await workbook.workbook.xlsx.writeFile("test_context.xlsx");
+
+        const contextSheet = workbook.workbook.getWorksheet("@context")
+        assert(contextSheet.getRow(3).values[2], "http://example.com/mybetterprop");
 
     });
 
@@ -349,5 +394,83 @@ describe('Can handle excel columns as objects (such as hyperlinks)', () => {
         const wb = new Workbook({crate});
         await wb.loadExcelFromBuffer(buffer, true);
         assert.strictEqual(wb.log.errors.length, 0);
-    })
-})
+    });
+});
+
+
+describe('Can handle root Id other than ./', () => {
+    it('should handle the prop', async () => {
+        const excelFilePath = "test_data/additional-rootId/additional-ro-crate-metadata.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        assert.strictEqual(wb.log.errors.length, 0);
+        const root = wb.crate.rootDataset;
+        assert.strictEqual(root['@id'], 'arcp://name.my_org/My_Dataset!');
+    });
+});
+
+describe('Can handle _isRef in a RootDataset (vertical)', () => {
+    it('should create 2 references to another object', async () => {
+        const excelFilePath = "test_data/additional-rootdataset/ro-crate-metadata-RootDataset_isRef.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const root = wb.crate.rootDataset;
+        assert.strictEqual(root['@id'], 'TEST_ID');
+        const author = [{"@id":"#LDaCA"}, {"@id":"#AARNET"}];
+        const authorId = root['author'];
+        assert.deepStrictEqual(authorId, author);
+    });
+    it('should handle isTerm_', async () => {
+        const excelFilePath = "test_data/additional-rootdataset/ro-crate-metadata-RootDataset_isRef.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        const term = wb.crate.resolveTerm('ldac:subjectLanguage');
+        assert(!term);
+        await wb.loadExcelFromBuffer(buffer, true);
+        const term2 = wb.crate.resolveTerm('ldac:subjectLanguage');
+        assert.strictEqual(term2, 'https://w3id.org/ldac/terms#subjectLanguage');
+    });
+});
+
+describe('Can handle multiple context', () => {
+    it('should handle the @context correctly', async () => {
+        const excelFilePath = "test_data/additional-rootdataset/ro-crate-metadata-RootDataset_isRef.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const contextLength = wb.crate.context.length;
+        await wb.loadExcelFromBuffer(buffer, true);
+        console.assert(contextLength === wb.crate.context.length);
+    });
+});
+
+describe('Can merge terms from different columns', () => {
+    it('can handle multiple terms', async () => {
+        const excelFilePath = "test_data/additional-multi/additional-ro-crate-metadata.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const object = wb.crate.getItem('#OBJECT_Emilia');
+        const languages = object.language;
+        assert.strictEqual(Array.isArray(languages), true);
+        assert.strictEqual(languages.length, 3);
+    });
+    it('can handle multiple terms in RootDataset', async () => {
+        const excelFilePath = "test_data/additional-rootdataset/ro-crate-metadata-RootDataset_isRef.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const rootDataset = wb.crate.rootDataset;
+        const languages = rootDataset.inLanguage;
+        assert.strictEqual(Array.isArray(languages), true);
+        assert.strictEqual(languages.length, 3);
+    });
+});
