@@ -417,14 +417,14 @@ TODO: Make @context entries for additional `Property` items automatically show u
 
 If using a spreadsheet to convert to JSON-LD, custom terms can be defined on a tab in the following format:
 
-| @id             | @type          | name               | description                          | inDefinedTermSet | sameAs | rdfs:subClassOf |
-| --------------- | -------------- | ------------------ | ------------------------------------ | ---------------- | ------ | --------------- |
-| #myProp         | rdf:Property   | My Property        | Description of the property.         |                  |
-| #MyDefinedTerm1 | DefinedTerm    | My Defined Term #1 | Description of the defined term.     | #MyPropTerms     |
-| #MyDefinedTerm2 | DefinedTerm    | My Defined Term #2 | Description of the defined term.     | #MyPropTerms     |
+| @id             | @type          | name               | description                          | isRef_inDefinedTermSet | sameAs | rdfs:subClassOf |
+| --------------- | -------------- | ------------------ | ------------------------------------ | ---------------------- | ------ | --------------- |
+| #myProp         | rdf:Property   | My Property        | Description of the property.         |                        |
+| #MyDefinedTerm1 | DefinedTerm    | My Defined Term #1 | Description of the defined term.     | #MyPropTerms           |
+| #MyDefinedTerm2 | DefinedTerm    | My Defined Term #2 | Description of the defined term.     | #MyPropTerms           |
 | #MyPropTerms    | DefinedTermSet | My Property Terms  | Description of the defined term set. |
 
-The `rdfs:label` and `rdfs:comment` will be autopopulated by rocxl from the `name` and `description` fields respectively.
+For `rdf:Property` and `rdfs:Class`, the `rdfs:label` and `rdfs:comment` will be autopopulated by rocxl from the `name` and `description` fields respectively.
 
 <br>
 
