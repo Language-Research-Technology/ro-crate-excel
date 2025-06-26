@@ -91,7 +91,7 @@ async function main() {
       shell.rm("-rf", path.join(dir, "ro-crate-metadata_files"));
       await processDirectory(dir, depth);   
 
-      //await generateHTML(path.join(dir, defaults.metadata_json_file_name));
+      await generateHTML(path.join(dir, defaults.metadata_json_file_name));
     }
   }
 }
