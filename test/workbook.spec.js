@@ -329,8 +329,8 @@ describe('Reverse', () => {
         assert(object1['hasPart'].length === 2)
         assert(object1['hasPart'][0]['@id'] === 'object1/1.mp4')
         assert(object1['hasPart'][1]['@id'] === 'object1/1.csv')
-        assert(wb.log.info.length > 0);
-        assert(wb.log.warning.length > 0)
+        assert(wb.log.warning.includes('Item object3/1.mp4 has a reverse link to #Object3 but it does not exist'));
+        assert(wb.log.warning.length === 7);
     });
 });
 

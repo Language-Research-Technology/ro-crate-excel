@@ -55,6 +55,7 @@ describe("Create workbooks", function() {
     await wb.loadExcel(catalogPath);
 
     const sheet = wb.workbook.getWorksheet("RootDataset");
+    console.log("Sheet", sheet);
     sheet.getCell("A4").value = "name";
     sheet.getCell("B4").value = "A Dataset";
     await wb.workbook.xlsx.writeFile(catalogPath);
