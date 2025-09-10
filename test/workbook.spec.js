@@ -119,7 +119,6 @@ describe("Create a workbook from a crate", function () {
         const pt = workbook.getItemByName("Peter Sefton")
         assert.equal(pt.name, "Peter Sefton")
         const s = workbook.workbook.getWorksheet("@type=Person");
-        console.log("WORKBOOK", s.id)
         const items = workbook.sheetToItems(s.id);
         assert.equal(items.length, 1);
         assert.equal(items[0].name, "Peter Sefton");
@@ -328,10 +327,10 @@ describe('Reverse', () => {
         const object1 = wb.crate.getItem('#Object1');
         assert(object1["@type"][0] === 'RepositoryObject')
         assert(object1['hasPart'].length === 2)
-        assert(object1['hasPart'][0]['@id'] === '/object1/1.mp4')
-        assert(object1['hasPart'][1]['@id'] === '/object1/1.csv')
-        assert(wb.log.info.length > 0);
-        assert(wb.log.warning.length > 0)
+        assert(object1['hasPart'][0]['@id'] === 'object1/1.mp4')
+        assert(object1['hasPart'][1]['@id'] === 'object1/1.csv')
+        assert(wb.log.warning.includes('Item object3/1.mp4 has a reverse link to #Object3 but it does not exist'));
+        assert(wb.log.warning.length === 7);
     });
 });
 
@@ -350,7 +349,8 @@ describe('Sheets', () => {
 });
 
 
-describe('Can handle multi _isRef in a sheet', () => {
+describe('Can handle multi isRef_ in a sheet', () => {
+
     it('should create 2 references to another object', async () => {
         const excelFilePath = "test_data/additional-multi/additional-ro-crate-metadata.xlsx";
         const crate = new ROCrate({}, {array: true, link: false});
@@ -359,7 +359,6 @@ describe('Can handle multi _isRef in a sheet', () => {
         await wb.loadExcelFromBuffer(buffer, true);
         const object = wb.crate.getItem('#OBJECT_Juan');
         const speakers = object.speaker;
-        assert.strictEqual(Array.isArray(speakers), true);
         assert.strictEqual(speakers.length, 2);
     });
     it('should create 1 reference even if it is referenced twice with the same id', async () => {
@@ -370,7 +369,7 @@ describe('Can handle multi _isRef in a sheet', () => {
         await wb.loadExcelFromBuffer(buffer, true);
         const object = wb.crate.getItem('#OBJECT_Emilia');
         const speakers = object.speaker;
-        assert.strictEqual(Array.isArray(speakers), true);
+
         assert.strictEqual(speakers.length, 1);
     });
 });
