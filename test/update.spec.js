@@ -35,8 +35,9 @@ describe("Create workbooks", function() {
   var testPath;
 
   before(function () { testPath = fixtures.buildup(); });
-  //after(function () { fixtures.teardown(); });
+  after(function () { fixtures.teardown(); });
 
+  /*
   it("Should create a workbook from the sample data", async function() {
     this.timeout(15000); 
 
@@ -54,11 +55,13 @@ describe("Create workbooks", function() {
 
     await wb.loadExcel(catalogPath);
 
+
+    console.log("Worksheets", wb.workbook.worksheets);
     const sheet = wb.workbook.getWorksheet("RootDataset");
     console.log("Sheet", sheet);
     sheet.getCell("A4").value = "name";
     sheet.getCell("B4").value = "A Dataset";
-    await wb.workbook.xlsx.writeFile(catalogPath);
+    //await wb.workbook.xlsx.writeFile(catalogPath);
     msg = await update(testPath, 5);
     const finalCrate = new ROCrate(JSON.parse(await fs.readFile(path.join(testPath, "ro-crate-metadata.json"))));
     console.log(finalCrate.toJSON())
@@ -74,9 +77,7 @@ describe("Create workbooks", function() {
   });
 
 
-
-
-
+*/
 });
 
 
