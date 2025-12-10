@@ -410,6 +410,18 @@ describe('Can handle root Id other than ./', () => {
     });
 });
 
+describe('Can handle missing rdfs:comment', () => {
+    it('should create rdfs:comment from description if descripton exists', async () => {
+        const excelFilePath = "test_data/missing_rdfs_comment.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+        await wb.loadExcelFromBuffer(buffer, true);
+        const testClass = crate.getEntity('#TestClass');
+        assert.strictEqual(testClass['rdfs:comment'][0], 'This is a description for the TestClass');
+    });
+});
+
 describe('Can handle _isRef in a RootDataset (vertical)', () => {
     it('should create 2 references to another object', async () => {
         const excelFilePath = "test_data/additional-rootdataset/ro-crate-metadata-RootDataset_isRef.xlsx";
