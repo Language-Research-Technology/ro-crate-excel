@@ -83,12 +83,12 @@ describe("Create a workbook from a crate", function () {
     it("Should create a workbook with two sheets", async function () {
         this.timeout(5000);
 
-        const c = new ROCrate();
+        const c = new ROCrate({array: true, link: true});
         c.index();
-        const root = c.getRootDataset();
+        const root = c.rootDataset;
         root["name"] = "My dataset";
         root["description"] = "Some old dataset";
-        c.addItem({
+        c.addEntity({
             "@id": "https://ror.org/03f0f6041",
             "name": "Universtiy of Technology Sydney",
             "@type": "Organization"
@@ -96,7 +96,53 @@ describe("Create a workbook from a crate", function () {
         const workbook = new Workbook({crate: c});
         await workbook.crateToWorkbook();
         // This is not using the api - may be fragile
-        assert.equal(workbook.workbook["_worksheets"].length, 4, "There are only two sheets");
+        assert.equal(workbook.workbook["_worksheets"].length, 4, "There are four sheets");
+
+
+    });
+
+
+
+    it("Should create a workbook with sheet-per-type of data", async function () {
+        this.timeout(5000);
+        const c = new ROCrate({array: true, link: true});
+        c.index();
+
+        const root = c.rootDataset;
+
+        root["name"] = "My dataset";
+        root["description"] = "Some old dataset";
+        c.addEntity({
+            "@id": "https://ror.org/03f0f6041",
+            "name": "Universtiy of Technology Sydney",
+            "@type": "Organization"
+        })
+        var workbook = new Workbook({crate: c});
+        await workbook.crateToWorkbook();
+        assert.equal(workbook.workbook["_worksheets"].length, 4, "Counting sheets");
+
+
+        c.addEntity({name: "Test file", "@type": "TYPE1", "@id": "#1"});
+        workbook = new Workbook({crate: c});
+        await workbook.crateToWorkbook();
+        assert.equal(workbook.workbook["_worksheets"].length, 5,  "Counting sheets");
+
+        c.addEntity({name: "Test file", "@type": ["TYPE1", "TYPE2"], "@id": "#2"});
+        c.addEntity({name: "Test file", "@type": ["TYPE2", "TYPE1"], "@id": "#3"});
+
+        workbook = new Workbook({crate: c});
+        await workbook.crateToWorkbook();
+
+        assert.equal(workbook.workbook["_worksheets"].length, 6 , "Counting sheets");
+       
+         c.addEntity({name: "Test file", "@type": ["LONGTYPE1", "LONGTYPE2", "LONGTYPE3", "LONGTYPE4", "LONGTYPE5"], "@id": "#4"});
+         c.addEntity({name: "Test file", "@type": ["LONGTYPE1", "LONGTYPE2", "LONGTYPE3", "LONGTYPE4", "LONGTYPE6"], "@id": "#5"});
+
+
+        workbook = new Workbook({crate: c});
+        await workbook.crateToWorkbook();
+
+        assert.equal(workbook.workbook["_worksheets"].length, 8 , "Counting sheets");
 
 
     });
@@ -118,7 +164,7 @@ describe("Create a workbook from a crate", function () {
         workbook.indexCrateByName();
         const pt = workbook.getItemByName("Peter Sefton")
         assert.equal(pt.name, "Peter Sefton")
-        const s = workbook.workbook.getWorksheet("@type=Person");
+        const s = workbook.workbook.getWorksheet("Person");
         const items = workbook.sheetToItems(s.id);
         assert.equal(items.length, 1);
         assert.equal(items[0].name, "Peter Sefton");
