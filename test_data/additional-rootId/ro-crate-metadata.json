@@ -1,8 +1,11 @@
 {
   "@context": [
     "https://w3id.org/ro/crate/1.1/context",
+    "https://w3id.org/ldac/context"
     {
-      "@vocab": "http://schema.org/"
+      "@vocab": "http://schema.org/",
+      "ldac": "https://w3id.org/ldac/terms#",
+      "compiler" : "https://w3id.org/ldac/terms#compiler"
     }
   ],
   "@graph": [
