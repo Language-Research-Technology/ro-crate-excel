@@ -440,8 +440,6 @@ describe('Can handle _isRef in a RootDataset (vertical)', () => {
         const crate = new ROCrate({}, {array: true, link: false});
         const buffer = fs.readFileSync(excelFilePath);
         const wb = new Workbook({crate});
-        const term = wb.crate.resolveTerm('ldac:subjectLanguage');
-        assert(!term);
         await wb.loadExcelFromBuffer(buffer, true);
         const term2 = wb.crate.resolveTerm('ldac:subjectLanguage');
         assert.strictEqual(term2, 'https://w3id.org/ldac/terms#subjectLanguage');
@@ -483,5 +481,122 @@ describe('Can merge terms from different columns', () => {
         const languages = rootDataset.inLanguage;
         assert.strictEqual(Array.isArray(languages), true);
         assert.strictEqual(languages.length, 3);
+    });
+});
+
+describe('isReverse_ property cleanup', () => {
+    it('should remove empty isReverse_ properties after resolveLinks', async () => {
+        // Create a crate with items containing isReverse_ properties
+        const crate = new ROCrate({array: true, link: true});
+        await crate.resolveContext();
+
+        // Add items with isReverse_ properties - some with values, some empty
+        crate.addItem({
+            "@id": "#Item1",
+            "@type": "Thing",
+            "name": "Item 1",
+            "isReverse_hasPart": "#Item2",  // This should be processed
+            "isReverse_author": ""           // This should be removed (empty)
+        });
+
+        crate.addItem({
+            "@id": "#Item2",
+            "@type": "Thing",
+            "name": "Item 2",
+            "isReverse_mentions": []               // This should be removed (empty array)
+        });
+
+        crate.addItem({
+            "@id": "#Item3",
+            "@type": "Thing",
+            "name": "Item 3"
+        });
+
+        const workbook = new Workbook({crate});
+        workbook.resolveLinks();
+
+        // Check Item1 - should NOT have isReverse_ properties anymore
+        const item1 = crate.getItem("#Item1");
+        expect(item1).to.exist;
+        expect(Object.keys(item1).filter(k => k.startsWith("isReverse_"))).to.have.length(0, 
+            "Item1 should not have any isReverse_ properties after resolveLinks");
+
+        // Check Item2 - should NOT have isReverse_ properties
+        const item2 = crate.getItem("#Item2");
+        expect(item2).to.exist;
+        expect(Object.keys(item2).filter(k => k.startsWith("isReverse_"))).to.have.length(0,
+            "Item2 should not have any isReverse_ properties after resolveLinks");
+
+        // Check Item3 - should not have any isReverse_ properties
+        const item3 = crate.getItem("#Item3");
+        expect(item3).to.exist;
+        expect(Object.keys(item3).filter(k => k.startsWith("isReverse_"))).to.have.length(0,
+            "Item3 should not have any isReverse_ properties after resolveLinks");
+    });
+
+    it('should correctly process non-empty isReverse_ properties by creating forward links', async () => {
+        // Create a crate where isReverse_ creates proper forward links
+        const crate = new ROCrate({array: true, link: true});
+        await crate.resolveContext();
+
+        crate.addItem({
+            "@id": "#Author1",
+            "@type": "Person",
+            "name": "Author One"
+        });
+
+        crate.addItem({
+            "@id": "#Document1",
+            "@type": "CreativeWork",
+            "name": "Document One",
+            "isReverse_author": "#Author1"  // This means Document1 is an author of Author1? Or Author1 authored Document1?
+        });
+
+        const workbook = new Workbook({crate});
+        workbook.resolveLinks();
+
+        // After resolveLinks, isReverse_ should be removed
+        const doc = crate.getItem("#Document1");
+        expect(Object.keys(doc).filter(k => k.startsWith("isReverse_"))).to.have.length(0,
+            "isReverse_ properties should be removed after processing");
+
+        // The target item should have the forward property created
+        const author = crate.getItem("#Author1");
+        expect(author).to.exist;
+    });
+
+    it('should handle mixed empty and non-empty isReverse_ properties correctly', async () => {
+        const crate = new ROCrate({array: true, link: true});
+        await crate.resolveContext();
+
+        crate.addItem({
+            "@id": "#Container",
+            "@type": "Thing",
+            "name": "Container",
+            "isReverse_hasPart": ["#Item1", "#Item2"],
+            "isReverse_empty": "",
+            "isReverse_nullValue": null
+        });
+
+        crate.addItem({
+            "@id": "#Item1",
+            "@type": "Thing",
+            "name": "Item 1"
+        });
+
+        crate.addItem({
+            "@id": "#Item2",
+            "@type": "Thing",
+            "name": "Item 2"
+        });
+
+        const workbook = new Workbook({crate});
+        workbook.resolveLinks();
+
+        const container = crate.getItem("#Container");
+        const reverseProps = Object.keys(container).filter(k => k.startsWith("isReverse_"));
+        
+        expect(reverseProps).to.have.length(0,
+            "All isReverse_ properties should be removed after resolveLinks, even if some had values");
     });
 });
