@@ -35,7 +35,7 @@
     "n-readlines": "^1.0.1",
     "neat-csv": "^6.0.1",
     "path": "^0.12.7",
-    "ro-crate": "^3.3.2",
+    "ro-crate": "^3.7.0",
     "ro-crate-html": "^0.1.4",
     "shell": "^0.8.6",
     "shelljs": "^0.8.4",
