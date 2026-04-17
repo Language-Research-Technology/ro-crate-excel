@@ -16,6 +16,73 @@ This is a library for building tools to assist in JSON-LD data entry. It has bee
 npm install ro-crate-excel --global
 ```
 
+### To use as a library
+
+Install in your project:
+
+```bash
+npm install ro-crate-excel ro-crate
+```
+
+The package exports a `Workbook` class:
+
+```js
+const { Workbook } = require("ro-crate-excel");
+```
+
+### Example: spreadsheet -> RO-Crate JSON
+
+```js
+const fs = require("fs-extra");
+const { Workbook } = require("ro-crate-excel");
+
+async function spreadsheetToCrate() {
+  const wb = new Workbook();
+  await wb.loadExcel("./my-crate/ro-crate-metadata.xlsx");
+
+  const crateJson = wb.crate.getJson();
+  await fs.writeFile(
+    "./my-crate/ro-crate-metadata.json",
+    JSON.stringify(crateJson, null, 2),
+    "utf8"
+  );
+}
+
+spreadsheetToCrate().catch(console.error);
+```
+
+### Example: RO-Crate JSON -> spreadsheet
+
+```js
+const { Workbook } = require("ro-crate-excel");
+const { ROCrate } = require("ro-crate");
+
+async function crateToSpreadsheet(crateJson) {
+  const crate = new ROCrate(crateJson, { array: true, link: true });
+  const wb = new Workbook({ crate });
+
+  await wb.crateToWorkbook();
+  await wb.workbook.xlsx.writeFile("./my-crate/ro-crate-metadata.xlsx");
+}
+```
+
+### Example: merge an additional spreadsheet into an existing crate
+
+```js
+const { Workbook } = require("ro-crate-excel");
+const { ROCrate } = require("ro-crate");
+
+async function mergeAdditionalSheet(existingCrateJson) {
+  const crate = new ROCrate(existingCrateJson, { array: true, link: true });
+  const wb = new Workbook({ crate });
+
+  // true means "add to existing crate" rather than replacing it
+  await wb.loadExcel("./my-crate/additional-ro-crate-metadata.xlsx", true);
+
+  return wb.crate.getJson();
+}
+```
+
 ### As a docker container (experimental)
 
 Clone this repository, change into the root then make a container:
