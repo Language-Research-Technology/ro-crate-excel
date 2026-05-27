@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/UTS-eResearch/ro-crate-excel.git"
+    "url": "git+https://github.com/Language-Research-Technology/ro-crate-excel.git"
   },
   "author": "Peter Sefton",
   "license": "GPL-3.0",
