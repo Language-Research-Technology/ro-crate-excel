@@ -26,24 +26,24 @@
   "homepage": "https://github.com/UTS-eResearch/ro-crate-excel#readme",
   "dependencies": {
     "commander": "^12.1.0",
-    "exceljs": "^4.3.0",
+    "exceljs": "^4.4.0",
     "fast-csv": "^4.3.6",
     "fs-extra": "^11.1.1",
     "hasha": "^5.2.0",
-    "jsonld": "^8.2.0",
     "lodash": "^4.17.19",
-    "n-readlines": "^1.0.1",
-    "neat-csv": "^6.0.1",
-    "path": "^0.12.7",
-    "ro-crate": "^3.7.0",
-    "ro-crate-html": "^0.1.4",
-    "shell": "^0.8.6",
+    "ro-crate": "^3.7.2",
+    "ro-crate-html-lite": "^0.0.7",
     "shelljs": "^0.8.4",
-    "uuid": "^8.3.2"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "chai": "4.5.0",
-    "mocha": "^10.8.2"
+    "mocha": "^11.7.6"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "^14.0.0"
+    }
   },
   "files": [
     "index.js",

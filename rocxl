@@ -20,13 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 const Bag = require("./lib/bag.js");
 const update = require("./lib/update.js");
-//
 const ROCrate = require("ro-crate").ROCrate;
-const Preview = require("ro-crate-html").Preview;
-const HtmlFile = require("ro-crate-html").HtmlFile;
-console.log("HTML FILE", HtmlFile);
-const htmlDefaults = require("ro-crate-html").Defaults;
-
+const { renderSinglePage } = require("ro-crate-html-lite");
 
 const path = require("path");
 const shell = require("shelljs");
@@ -46,12 +41,12 @@ async function main() {
   program
     .version(version)
     .description(
-      "Generates an an Excel spreadsheet and RO-Crate metadata from a set of files and updates the RO-Crate with data " + 
+      "Generates an an Excel spreadsheet and RO-Crate metadata from a set of files and updates the RO-Crate with data " +
       "filled in the spreadsheet. If a spreadsheet is newer than the RO-Crate metadata file then then xlro will use that or vice versa. " +
       "The file system is ALWAYS traversed and file information merged into existing metadata."
     )
     .arguments("<directories...>")
-    .action(function(directories) {
+    .action(function (directories) {
       dirs = directories;
     })
     .option("-b,  --bag [bag-dir]", "Create Bagit Bag(s) under [bag-dir])")
@@ -83,13 +78,13 @@ async function main() {
   if (opts.maxfiles) {
     defaults.maxFilesInDir = opts.maxfiles;
   }
- 
+
   if (!program.rawArgs.length || !dirs) program.help();
 
-  for( let dir of dirs ) {
+  for (let dir of dirs) {
     if (shell.test("-d", dir)) {
       shell.rm("-rf", path.join(dir, "ro-crate-metadata_files"));
-      await processDirectory(dir, depth);   
+      await processDirectory(dir, depth);
 
       await generateHTML(path.join(dir, defaults.metadata_json_file_name));
     }
@@ -103,93 +98,71 @@ async function processDirectory(dir, depth) {
 
 
 async function generateHTML(metadataPath) {
-    // Save an HTML file
-    console.log("Generating html from: " + metadataPath);
-    if (!path.isAbsolute(metadataPath)) {
-        metadataPath = path.join(process.cwd(), metadataPath);
+  // Save an HTML file
+  console.log("Generating html from: " + metadataPath);
+  if (!path.isAbsolute(metadataPath)) {
+    metadataPath = path.join(process.cwd(), metadataPath);
+  }
+  var dir = path.dirname(metadataPath)
+  shell.rm("-rf", path.join(dir, "ro-crate-metadata_files"));
+  const crateData = JSON.parse(fs.readFileSync(metadataPath, "utf8"));
+  var crate = await ROCrate.create(crateData);
+  // crate.index();
+  var root = crate.root;
+
+  if (opts.url) {
+    // Add download info
+    crate.addValues(root, "distribution", {
+      "@id": opts.url,
+      "contentUrl": opts.url,
+      "@type": "DataDownload",
+      "encodingFormat": "zip"
+    });
+    fs.writeFileSync(metadataPath, JSON.stringify(crate.toJSON(), null, 2), "utf8");
+  }
+  if (opts.partOf) {
+    var parentCrate = await ROCrate.create(JSON.parse(fs.readFileSync(opts.partOf, "utf8")));
+    parentRoot = parentCrate.root;
+    // Inherit metadata
+    if (!root.datePublished) {
+      root.datePublished = parentRoot.datePublished;
     }
-    var dir = path.dirname(metadataPath)
-    shell.rm("-rf", path.join(dir, "ro-crate-metadata_files"));
-    var crate = new ROCrate(JSON.parse(fs.readFileSync(metadataPath, "utf8")));
-    crate.index();
-    var root =  crate.getRootDataset();
-
-
-    if (opts.url){
-      // Add dowload info
-      if (!root["distribution"]) {
-        root["distribution"] = []
-      }
-      root["distribution"] = crate.utils.asArray(root["distribution"])
-      root["distribution"].push(
-        {
-          "@id": opts.url
-        }
-      );
-      var graph = crate.getGraph();
-      graph.push(
-        {
-          "@id": opts.url,
-          "contentUrl": opts.url,
-          "@type": "DataDownload",
-          "encodingFormat": "zip"
-       });
-       fs.writeFileSync(metadataPath, JSON.stringify(crate.getJson(), null, 2), "utf8")
-       crate = new ROCrate(crate.getJson());
-
-      }
-      if (opts.partOf) {
-        var parentCrate = new ROCrate(JSON.parse(fs.readFileSync(opts.partOf, "utf8")));
-        await parentCrate.index();
-        parentRoot = await parentCrate.getRootDataset();
-        // Inherit metadata
-        if (!root.datePublished) {
-          root.datePublished = parentRoot.datePublished;
-        }
-        if (!root.name) {
-          root.name = `${root['@id']} [Part of]: ${parentRoot.name}`;
-        }
-        var desc = crate.utils.asArray(root.description)
-        desc.push(`This dataset is a part of: ${parentRoot.name} [${parentRoot.description}]`);
-        root.description = desc;
-        if (!root.isPartOf && parentRoot.identifier) {
-          root.isPartOf = parentRoot.identifier;
-        }
-       
-
-      }
-
-      const preview = await new Preview(crate);
-      console.log(HtmlFile)
-      const f = new HtmlFile(preview); 
-  
-      fs.writeFileSync(path.join(dir, htmlFileName),
-      await f.render(opts.cratescript || htmlDefaults.render_script), "utf-8");
-     
-    if (opts.bag) {
-      var bagger = new Bag();
-      var dest = path.join(opts.bag, path.basename(dir));
-
-      shell.rm("-rf", dest);
-      dir = await bagger.bag(dir, dest, crate);
-      console.log("bagged", dir)
-      bagger.generate_bag_info();
-      bagger.save_bag_info();
-      if (!path.isAbsolute(dir)) {
-        dir = path.join(process.cwd(), dir);
-      }
-      metadata_path = path.join(dir, metadata_file_name);
-      const index = await fs.copyFile(path.join(__dirname, "defaults", "index.html"), path.join(dest, "index.html"));
-      //bagger.update();
-     
-      if (opts.zip){
-        var zipname = path.resolve(path.join(opts.bag, path.basename(path.dirname(metadataPath)).replace(" ","_") + ".zip"));
-        console.log('Zipping to', zipname)
-        shell.cd(dir);
-        shell.rm("-f", `"${zipname}"`);
-        shell.exec(`zip -r "${zipname}" *`);
-      }
+    if (!root.name) {
+      root.name = `${root['@id']} [Part of]: ${parentRoot.name}`;
     }
-     
+    root.description.push(`This dataset is a part of: ${parentRoot.name} [${parentRoot.description}]`);
+    if (!root.isPartOf && parentRoot.identifier) {
+      root.isPartOf = parentRoot.identifier;
+    }
+  }
+
+  const previewContent = await renderSinglePage({ crate });
+  fs.writeFileSync(path.join(dir, htmlFileName), previewContent, "utf-8");
+
+  if (opts.bag) {
+    var bagger = new Bag();
+    var dest = path.join(opts.bag, path.basename(dir));
+
+    shell.rm("-rf", dest);
+    dir = await bagger.bag(dir, dest, crate);
+    console.log("bagged", dir)
+    bagger.generate_bag_info();
+    bagger.save_bag_info();
+    if (!path.isAbsolute(dir)) {
+      dir = path.join(process.cwd(), dir);
+    }
+    metadata_path = path.join(dir, metadata_file_name);
+    const index = await fs.copyFile(path.join(__dirname, "defaults", "index.html"), path.join(dest, "index.html"));
+    //bagger.update();
+
+    if (opts.zip) {
+      var zipname = path.resolve(path.join(opts.bag, path.basename(path.dirname(metadataPath)).replace(" ", "_") + ".zip"));
+      console.log('Zipping to', zipname)
+      shell.cd(dir);
+      shell.rm("-f", `"${zipname}"`);
+      shell.exec(`zip -r "${zipname}" *`);
+    }
+  }
+
 
 }
