@@ -93,7 +93,10 @@ async function main() {
 
 
 async function processDirectory(dir, depth) {
-  await update(dir, depth, opts.JSON, opts.add);
+  const statusMessage = await update(dir, depth, opts.JSON, opts.add);
+  for (let message of statusMessage) {
+    console.log(message);
+  }
 }
 
 
