@@ -79,6 +79,22 @@ describe("Create a workbook from a crate", function () {
 
     });
 
+    it("Should trim whitespace when converting cells to json", async function () {
+        const c = new ROCrate({array: true, link: true});
+        const workbook = new Workbook({crate: c});
+        const sheet = workbook.workbook.addWorksheet("RootDataset");
+        sheet.columns = [
+            {header: "Name", key: "Name", width: 10},
+            {header: "Value", key: "Value", width: 100}
+        ];
+        sheet.addRow({Name: "name", Value: "  Trimmed title  "});
+
+        const item = workbook.sheetToItem("RootDataset");
+
+        assert.equal(item.item.name[0], "Trimmed title");
+        assert(workbook.log.info.some(message => message.includes("Trimmed whitespace from RootDataset!B2")));
+    });
+
 
     it("Should create a workbook with two sheets", async function () {
         this.timeout(5000);
