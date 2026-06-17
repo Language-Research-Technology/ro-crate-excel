@@ -616,3 +616,45 @@ describe('isReverse_ property cleanup', () => {
             "All isReverse_ properties should be removed after resolveLinks, even if some had values");
     });
 });
+
+describe('Boolean cell handling', () => {
+    it('should preserve booleans in RootDataset sheet values', () => {
+        const crate = new ROCrate({array: true, link: true});
+        const wb = new Workbook({crate});
+
+        const rootSheet = wb.workbook.addWorksheet('RootDataset');
+        rootSheet.columns = [
+            {header: 'Name', key: 'Name'},
+            {header: 'Value', key: 'Value'}
+        ];
+        rootSheet.addRow({Name: 'published', Value: true});
+        rootSheet.addRow({Name: 'archived', Value: false});
+
+        const parsed = wb.sheetToItem('RootDataset');
+        assert.strictEqual(parsed.item.published[0], true);
+        assert.strictEqual(parsed.item.archived[0], false);
+    });
+
+    it('should preserve booleans in typed sheet values', () => {
+        const crate = new ROCrate({array: true, link: true});
+        const wb = new Workbook({crate});
+
+        const typedSheet = wb.workbook.addWorksheet('@type=Thing');
+        typedSheet.columns = [
+            {header: '@id', key: '@id'},
+            {header: '@type', key: '@type'},
+            {header: 'isPublished', key: 'isPublished'},
+            {header: 'isArchived', key: 'isArchived'}
+        ];
+        typedSheet.addRow({
+            '@id': '#thing-1',
+            '@type': 'Thing',
+            isPublished: true,
+            isArchived: false
+        });
+
+        const items = wb.sheetToItems(typedSheet.id);
+        assert.strictEqual(items[0].isPublished[0], true);
+        assert.strictEqual(items[0].isArchived[0], false);
+    });
+});
