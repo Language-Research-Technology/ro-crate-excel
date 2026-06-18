@@ -657,4 +657,18 @@ describe('Boolean cell handling', () => {
         assert.strictEqual(items[0].isPublished[0], true);
         assert.strictEqual(items[0].isArchived[0], false);
     });
+
+    it('should preserve isChild booleans when loading additional-with-booleans fixture', async () => {
+        const excelFilePath = "test_data/additional-with-booleans/additional-ro-crate-metadata.xlsx";
+        const crate = new ROCrate({}, {array: true, link: false});
+        const buffer = fs.readFileSync(excelFilePath);
+        const wb = new Workbook({crate});
+
+        await wb.loadExcelFromBuffer(buffer, true);
+
+        const juan = wb.crate.getItem('#OBJECT_Juan');
+        const rosa = wb.crate.getItem('#OBJECT_Rosa');
+        assert.strictEqual(juan.isChild[0], true);
+        assert.strictEqual(rosa.isChild[0], false);
+    });
 });
